@@ -1,0 +1,46 @@
+# Source https://github.com/kubeflow/training-operator/blob/v1.8.0/build/images/training-operator/Dockerfile
+name: training-operator
+summary: An image for Kubeflow Training Operator
+description: |
+  Kubeflow Training Operator is a Kubernetes-native project for fine-tuning and scalable 
+  distributed training of machine learning (ML) models created with various ML frameworks.
+version: "1.8.0"
+license: Apache-2.0
+base: ubuntu@22.04
+
+platforms:
+  amd64:
+
+services:
+  training-operator:
+    override: merge
+    command: "training-operator.v1"
+    startup: enabled
+    user: ubuntu
+
+parts:
+  security-team-requirement:
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/share/rocks
+      (echo "# os-release" && cat /etc/os-release && echo "# dpkg-query" && \
+       dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
+       ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
+
+  training-operator:
+    plugin: go
+    build-snaps:
+      - go/1.22/stable
+    source: https://github.com/kubeflow/training-operator
+    source-type: git
+    source-tag: v1.8.0
+    source-depth: 1
+    source-subdir: cmd/training-operator.v1
+
+  non-root-user:
+    plugin: nil
+    after: [ training-operator ]
+    overlay-script: |
+      # Create a user in the $CRAFT_OVERLAY chroot
+      groupadd -R $CRAFT_OVERLAY -g 1001 ubuntu
+      useradd -R $CRAFT_OVERLAY -M -r -u 1001 -g ubuntu ubuntu
