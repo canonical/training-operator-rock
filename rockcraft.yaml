@@ -14,7 +14,7 @@ platforms:
 services:
   training-operator:
     override: merge
-    command: "training-operator.v1"
+    command: "/manager"
     startup: enabled
     user: ubuntu
 
@@ -36,6 +36,18 @@ parts:
     source-tag: v1.8.0
     source-depth: 1
     source-subdir: cmd/training-operator.v1
+    build-environment:
+      - CGO_ENABLED: 0
+      - GOOS: linux
+    override-build: |
+      # cd into $CRAFT_PART_SRC_WORK due to https://github.com/canonical/craft-parts/issues/427
+      cd $CRAFT_PART_SRC_WORK
+      go mod download
+      go build -a -o $CRAFT_PART_INSTALL/manager main.go
+    stage:
+      - manager
+    prime:
+      - manager
 
   non-root-user:
     plugin: nil
