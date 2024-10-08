@@ -4,7 +4,7 @@ summary: An image for Kubeflow Training Operator
 description: |
   Kubeflow Training Operator is a Kubernetes-native project for fine-tuning and scalable 
   distributed training of machine learning (ML) models created with various ML frameworks.
-version: "1.8.0"
+version: "1.9.0"
 license: Apache-2.0
 base: ubuntu@22.04
 
