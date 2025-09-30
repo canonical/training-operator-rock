@@ -3,4 +3,4 @@ integrations:
 
     replace-image:
       - file: config.yaml
-        path: options.training-operator-image.default
+        path: options.trainer-image.default
