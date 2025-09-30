@@ -1,6 +1,1 @@
-integrations:
-  - consumer-repository: https://github.com/canonical/training-operator.git
-
-    replace-image:
-      - file: config.yaml
-        path: options.trainer-image.default
+integrations: []
