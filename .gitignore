@@ -1,0 +1,7 @@
+build/
+__pycache__
+.idea
+.tox
+.coverage
+*.rock
+venv/
