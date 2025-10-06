@@ -1,5 +1,5 @@
 # Source https://github.com/kubeflow/trainer/blob/v2.0.1/cmd/trainer-controller-manager/Dockerfile
-name: trainer
+name: kubeflow-trainer
 summary: An image for Kubeflow Trainer
 description: |
   Kubeflow Trainer is a Kubernetes-native project for fine-tuning and scalable 
@@ -12,11 +12,12 @@ platforms:
   amd64:
 
 services:
-  trainer:
+  kubeflow-trainer:
     override: merge
     command: "/manager"
     startup: enabled
-    user: ubuntu
+
+run-user: _daemon_
 
 parts:
   security-team-requirement:
@@ -27,7 +28,7 @@ parts:
        dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
        ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
 
-  trainer:
+  kubeflow-trainer:
     plugin: go
     build-snaps:
       - go/1.24/stable
@@ -48,11 +49,3 @@ parts:
       - manager
     prime:
       - manager
-
-  non-root-user:
-    plugin: nil
-    after: [ trainer ]
-    overlay-script: |
-      # Create a user in the $CRAFT_OVERLAY chroot
-      groupadd -R $CRAFT_OVERLAY -g 1001 ubuntu
-      useradd -R $CRAFT_OVERLAY -M -r -u 1001 -g ubuntu ubuntu
