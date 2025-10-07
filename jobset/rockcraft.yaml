@@ -40,11 +40,6 @@ parts:
       - CGO_ENABLED: 0
       - GOOS: linux
     override-build: |
-      # cd into $CRAFT_PART_SRC_WORK due to https://github.com/canonical/craft-parts/issues/427
-      cd $CRAFT_PART_SRC_WORK
+      cd $CRAFT_PART_SRC
       go mod download
-      go build -a -o $CRAFT_PART_INSTALL/manager main.go
-    stage:
-      - manager
-    prime:
-      - manager
+      go build -a -o $CRAFT_PART_INSTALL/manager
