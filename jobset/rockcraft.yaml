@@ -41,5 +41,5 @@ parts:
       - GOOS: linux
     override-build: |
       cd $CRAFT_PART_SRC
-      go mod download
-      go build -a -o $CRAFT_PART_INSTALL/manager
+      make build GO_BUILD_ENV='CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS}'
+      cp bin/manager $CRAFT_PART_INSTALL
