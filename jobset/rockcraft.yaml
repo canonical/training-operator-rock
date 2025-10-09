@@ -1,0 +1,45 @@
+# Source https://github.com/kubernetes-sigs/jobset/blob/v0.8.2/Dockerfile
+name: jobset
+summary: An image for Kubernetes JobSet
+description: |
+  JobSet is a Kubernetes-native API for managing a group of k8s Jobs as a unit.
+  It aims to offer a unified API for deploying HPC (e.g., MPI) and AI/ML training workloads (PyTorch, Jax, Tensorflow etc.) on Kubernetes.
+version: "0.8.2"
+license: Apache-2.0
+base: ubuntu@22.04
+
+platforms:
+  amd64:
+
+services:
+  jobset:
+    override: merge
+    command: "/manager"
+    startup: enabled
+
+run-user: _daemon_
+
+parts:
+  security-team-requirement:
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/share/rocks
+      (echo "# os-release" && cat /etc/os-release && echo "# dpkg-query" && \
+       dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
+       ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
+
+  jobset:
+    plugin: go
+    build-snaps:
+      - go/1.23/stable
+    source: https://github.com/kubernetes-sigs/jobset
+    source-type: git
+    source-tag: v0.8.2
+    source-depth: 1
+    build-environment:
+      - CGO_ENABLED: 0
+      - GOOS: linux
+    override-build: |
+      cd $CRAFT_PART_SRC
+      make build GO_BUILD_ENV='CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS}'
+      cp bin/manager $CRAFT_PART_INSTALL
