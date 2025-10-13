@@ -6,7 +6,6 @@ description: |
 version: "0.6.0"
 license: Apache-2.0
 base: ubuntu@22.04
-entrypoint-service: mpi-operator
 run-user: _daemon_
 
 platforms:
