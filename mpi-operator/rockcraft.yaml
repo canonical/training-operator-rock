@@ -16,6 +16,7 @@ services:
     override: merge
     command: "/opt/mpi-operator [ dummy-arguments ]"
     startup: enabled
+entrypoint-service: mpi-operator
 
 parts:
   security-team-requirement:
