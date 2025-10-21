@@ -39,9 +39,11 @@ def test_rock(rock_test_env):
         [
             "docker",
             "run",
+            "--entrypoint",
+            "/bin/bash",
             "--rm",
             LOCAL_ROCK_IMAGE,
-            "exec",
+            "-c",
             "ls",
             "-la",
             "/opt/mpi-operator",
