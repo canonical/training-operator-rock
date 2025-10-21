@@ -1,0 +1,58 @@
+# Source: https://github.com/kubeflow/mpi-operator/blob/v0.6.0/Dockerfile
+name: mpi-operator
+summary: Kubernetes Operator for MPI-based applications (distributed training, HPC, etc.) 
+description: |
+  The MPI Operator makes it easy to run allreduce-style distributed training on Kubernetes. Please check out [this blog post](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc) for an introduction to MPI Operator and its industry adoption.
+version: "0.6.0"
+license: Apache-2.0
+base: ubuntu@22.04
+run-user: _daemon_
+
+platforms:
+  amd64:
+
+services:
+  mpi-operator:
+    override: merge
+    command: "/opt/mpi-operator [ dummy-arguments ]"
+    startup: enabled
+entrypoint-service: mpi-operator
+
+parts:
+  security-team-requirement:
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/share/rocks
+      (echo "# os-release" && cat /etc/os-release && echo "# dpkg-query" && \
+       dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
+       ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
+
+  mpi-operator:
+    plugin: go
+    build-snaps:
+      - go/1.23/stable
+    source: https://github.com/kubeflow/mpi-operator
+    source-type: git
+    source-tag: v0.6.0
+    source-depth: 1
+    source-subdir: cmd/mpi-operator
+    build-environment:
+      - CGO_ENABLED: 0
+      - GOOS: linux
+    override-build: |
+      # cd into $CRAFT_PART_SRC_WORK due to https://github.com/canonical/craft-parts/issues/427
+      cd $CRAFT_PART_SRC_WORK
+      go mod download
+      go build -a -o $CRAFT_PART_INSTALL/opt/mpi-operator
+
+      # Copy third party licenses
+      cp -r $CRAFT_PART_SRC/third_party/library/license.txt $CRAFT_PART_INSTALL/opt/license.txt
+
+  non-root-user:
+    plugin: nil
+    after: [ mpi-operator ]
+    override-prime: |
+      craftctl default
+      # Change permissions of the /opt directory to
+      # be owned by the _daemon_ user
+      chown 584792:584792 ${CRAFT_PRIME}/opt
