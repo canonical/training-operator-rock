@@ -34,7 +34,7 @@ parts:
       - go/1.24/stable
     source: https://github.com/kubeflow/trainer
     source-type: git
-    source-tag: v2.0.1
+    source-tag: v2.1.0
     source-depth: 1
     source-subdir: cmd/trainer-controller-manager
     build-environment:

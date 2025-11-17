@@ -1,5 +1,5 @@
 # Source https://github.com/kubernetes-sigs/lws/blob/v0.7.0/Dockerfile
-name: leader-worker-set
+name: leaderworkerset
 summary: An image for LeaderWorkerSet
 description: |
   LeaderWorkerSet: An API for deploying a group of pods as a unit of replication.
@@ -13,7 +13,7 @@ platforms:
   amd64:
 
 services:
-  kubeflow-trainer:
+  leaderworkerset:
     override: merge
     command: "/manager"
     startup: enabled
@@ -29,7 +29,7 @@ parts:
        dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
        ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
 
-  kubeflow-trainer:
+  leaderworkerset:
     plugin: go
     build-snaps:
       - go/1.24/stable
@@ -37,16 +37,10 @@ parts:
     source-type: git
     source-tag: v0.7.0
     source-depth: 1
-    source-subdir: cmd/
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
     override-build: |
-      # cd into $CRAFT_PART_SRC_WORK due to https://github.com/canonical/craft-parts/issues/427
-      cd $CRAFT_PART_SRC_WORK
-      go mod download
-      go build -a -o $CRAFT_PART_INSTALL/manager main.go
-    stage:
-      - manager
-    prime:
-      - manager
+      cd $CRAFT_PART_SRC
+      make build GO_BUILD_ENV='CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS}'
+      cp bin/manager $CRAFT_PART_INSTALL
