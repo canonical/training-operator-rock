@@ -1,10 +1,11 @@
-# Source https://github.com/kubeflow/trainer/blob/v2.1.0/cmd/trainer-controller-manager/Dockerfile
-name: kubeflow-trainer
-summary: An image for Kubeflow Trainer
+# Source https://github.com/kubernetes-sigs/lws/blob/v0.7.0/Dockerfile
+name: leader-worker-set
+summary: An image for LeaderWorkerSet
 description: |
-  Kubeflow Trainer is a Kubernetes-native project for fine-tuning and scalable 
-  distributed training of machine learning (ML) models created with various ML frameworks.
-version: "2.1.0"
+  LeaderWorkerSet: An API for deploying a group of pods as a unit of replication.
+  It aims to address common deployment patterns of AI/ML inference workloads,
+  especially multi-host inference workloads where the LLM will be sharded and run across multiple devices on multiple nodes.
+version: "0.7.0"
 license: Apache-2.0
 base: ubuntu@22.04
 
@@ -32,11 +33,11 @@ parts:
     plugin: go
     build-snaps:
       - go/1.24/stable
-    source: https://github.com/kubeflow/trainer
+    source: https://github.com/kubernetes-sigs/lws
     source-type: git
-    source-tag: v2.0.1
+    source-tag: v0.7.0
     source-depth: 1
-    source-subdir: cmd/trainer-controller-manager
+    source-subdir: cmd/
     build-environment:
       - CGO_ENABLED: 0
       - GOOS: linux
