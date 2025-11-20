@@ -1,10 +1,10 @@
-# Source https://github.com/kubeflow/trainer/blob/v2.0.1/cmd/trainer-controller-manager/Dockerfile
+# Source https://github.com/kubeflow/trainer/blob/v2.1.0/cmd/trainer-controller-manager/Dockerfile
 name: kubeflow-trainer
 summary: An image for Kubeflow Trainer
 description: |
   Kubeflow Trainer is a Kubernetes-native project for fine-tuning and scalable 
   distributed training of machine learning (ML) models created with various ML frameworks.
-version: "2.0.1"
+version: "2.1.0"
 license: Apache-2.0
 base: ubuntu@22.04
 
@@ -34,7 +34,7 @@ parts:
       - go/1.24/stable
     source: https://github.com/kubeflow/trainer
     source-type: git
-    source-tag: v2.0.1
+    source-tag: v2.1.0
     source-depth: 1
     source-subdir: cmd/trainer-controller-manager
     build-environment:

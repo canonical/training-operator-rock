@@ -1,10 +1,11 @@
-# Source https://github.com/kubernetes-sigs/jobset/blob/v0.10.1/Dockerfile
-name: jobset
-summary: An image for Kubernetes JobSet
+# Source https://github.com/kubernetes-sigs/lws/blob/v0.7.0/Dockerfile
+name: leaderworkerset
+summary: An image for LeaderWorkerSet
 description: |
-  JobSet is a Kubernetes-native API for managing a group of k8s Jobs as a unit.
-  It aims to offer a unified API for deploying HPC (e.g., MPI) and AI/ML training workloads (PyTorch, Jax, Tensorflow etc.) on Kubernetes.
-version: "0.10.1"
+  LeaderWorkerSet: An API for deploying a group of pods as a unit of replication.
+  It aims to address common deployment patterns of AI/ML inference workloads,
+  especially multi-host inference workloads where the LLM will be sharded and run across multiple devices on multiple nodes.
+version: "0.7.0"
 license: Apache-2.0
 base: ubuntu@22.04
 
@@ -12,7 +13,7 @@ platforms:
   amd64:
 
 services:
-  jobset:
+  leaderworkerset:
     override: merge
     command: "/manager"
     startup: enabled
@@ -28,13 +29,13 @@ parts:
        dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
        ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
 
-  jobset:
+  leaderworkerset:
     plugin: go
     build-snaps:
       - go/1.24/stable
-    source: https://github.com/kubernetes-sigs/jobset
+    source: https://github.com/kubernetes-sigs/lws
     source-type: git
-    source-tag: v0.10.1
+    source-tag: v0.7.0
     source-depth: 1
     build-environment:
       - CGO_ENABLED: 0
