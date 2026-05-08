@@ -52,18 +52,9 @@ parts:
         --requirement ${CRAFT_PART_INSTALL}/app/requirements.txt \
         --target ${DIST_PACKAGES_DIR}
 
-  non-root-user:
-    plugin: nil
-    after:
-      - dataset-initializer
-    override-prime: |
-      craftctl default
-      install -d -o 584792 -g 584792 -m 770 \
-        etc/webhook/certs
-
   security-team-requirement:
     after:
-      - non-root-user
+      - dataset-initializer
     plugin: nil
     override-build: |
       mkdir -p ${CRAFT_PART_INSTALL}/usr/share/rocks
