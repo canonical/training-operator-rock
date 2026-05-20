@@ -1,0 +1,60 @@
+# Source https://github.com/kubeflow/trainer/blob/v2.1.0/cmd/initializers/model/Dockerfile
+name: model-initializer
+summary: An image for Kubeflow Trainer model initializer
+description: |
+  Model initializer component for Kubeflow Trainer.
+  This image runs the model initializer Python module used by Trainer jobs.
+version: "2.1.0"
+license: Apache-2.0
+base: ubuntu@22.04
+
+platforms:
+  amd64:
+
+services:
+  model-initializer:
+    override: merge
+    command: "python3.11 -m pkg.initializers.model"
+    startup: enabled
+    working-dir: /app
+    environment:
+      PYTHONPATH: /app
+
+run-user: _daemon_
+
+parts:
+  model-initializer:
+    plugin: nil
+    source: https://github.com/kubeflow/trainer
+    source-type: git
+    source-tag: v2.1.0
+    source-depth: 1
+    build-packages:
+      - python3.11
+      - python3-pip
+    stage-packages:
+      - python3.11
+      - ca-certificates
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/app
+      PYTHON_VERSION=$(/usr/bin/python3.11 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+      DIST_PACKAGES_DIR=${CRAFT_PART_INSTALL}/usr/local/lib/python${PYTHON_VERSION}/dist-packages
+      mkdir -p ${DIST_PACKAGES_DIR}
+
+      cp ${CRAFT_PART_SRC}/cmd/initializers/model/requirements.txt ${CRAFT_PART_INSTALL}/app/
+      cp -r ${CRAFT_PART_SRC}/pkg ${CRAFT_PART_INSTALL}/app/
+      cp -r ${CRAFT_PART_SRC}/pkg ${DIST_PACKAGES_DIR}/
+
+      /usr/bin/python3.11 -m pip install --no-cache-dir \
+        --requirement ${CRAFT_PART_INSTALL}/app/requirements.txt \
+        --target ${DIST_PACKAGES_DIR}
+
+  security-team-requirement:
+    after:
+      - model-initializer
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/share/rocks
+      (echo "# os-release" && cat /etc/os-release && echo "# dpkg-query" && \
+       dpkg-query -f '${db:Status-Abbrev},${binary:Package},${Version},${source:Package},${Source:Version}\n' -W) > \
+       ${CRAFT_PART_INSTALL}/usr/share/rocks/dpkg.query
