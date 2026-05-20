@@ -11,25 +11,8 @@ import pytest
 from charmed_kubeflow_chisme.rock import CheckRock
 
 
-@pytest.fixture()
-def rock_test_env(tmpdir):
-    """Yields a temporary directory and random docker container name, then cleans them up after."""
-    container_name = "".join(
-        [str(i) for i in random.choices(string.ascii_lowercase, k=8)]
-    )
-    yield tmpdir, container_name
-
-    try:
-        subprocess.run(["docker", "rm", container_name])
-    except Exception:
-        pass
-    # tmpdir fixture we use here should clean up the other files for us
-
-
-@pytest.mark.abort_on_fail
-def test_rock(rock_test_env):
+def test_rock():
     """Test rock."""
-    temp_dir, container_name = rock_test_env
     check_rock = CheckRock("rockcraft.yaml")
     rock_image = check_rock.get_name()
     rock_version = check_rock.get_version()
@@ -42,7 +25,7 @@ def test_rock(rock_test_env):
             "--rm",
             LOCAL_ROCK_IMAGE,
             "exec",
-            "python3",
+            "python3.11",
             "-c",
             "import pkg.initializers.model",
         ],
